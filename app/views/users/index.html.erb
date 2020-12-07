@@ -1,0 +1,88 @@
+<div>
+  <div>
+    <h1>
+      List of users
+    </h1>
+  </div>
+</div>
+
+<hr>
+<div>
+  <div>
+    <table border="1">
+      <tr>
+        <th>
+          Username
+        </th>
+
+        <th>
+          Private?
+        </th>
+
+        <th>
+        </th>
+
+        <th>
+        </th>
+      </tr>
+
+      <% @list_of_users.each do |a_user| %>
+      <tr>
+        <td>
+          <%= a_user.username %>
+        </td>
+
+        <td>
+          <% if a_user.private %>
+            Yes
+          <% else %>
+            No 
+          <% end %>
+        </td>
+
+        <% if @current_user %>
+          <td>
+            <% followrequest = FollowRequest.where( :recipient_id => a_user.id, :sender_id => @current_user.id)[0] %>
+            <% if followrequest%>
+              <% if followrequest.status == "accepted" %>
+                <a href="delete_follow_request/<%= followrequest.id%>">
+                  unfollow
+                </a>
+              <% elsif followrequest.status == "pending" %>
+                Request sent
+                <a href="delete_follow_request/<%= followrequest.id%>">
+                  Cancel
+                </a>
+              <% else %>
+                <form action="/insert_follow_request" method="post">
+                  <input type="hidden" id="recipient_id_box" name="query_recipient_id" value=<%=a_user.id%>>
+                  <input type="hidden" id="sender_id_box" name="query_sender_id" value=<%=@current_user.id%>>
+                <button>
+                  Follow
+                </button>
+                </form>
+              <% end %>
+            <% else %>
+                <form action="/insert_follow_request" method="post">
+                  <input type="hidden" id="recipient_id_box" name="query_recipient_id" value=<%=a_user.id%>>
+                  <input type="hidden" id="sender_id_box" name="query_sender_id" value=<%=@current_user.id%>>
+                <button>
+                  Follow
+                </button>
+                </form>
+            <% end %>
+          </td>
+        <% end %>
+
+        <td>
+          <a href="/users/<%= a_user.username %>">
+            Show details
+          </a>
+        </td>
+      </tr>
+      <% end %>
+    </table>
+  </div>
+</div>
+
+<hr>

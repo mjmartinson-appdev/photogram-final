@@ -1,0 +1,83 @@
+<h1>
+  <%= @the_user.username %>
+</h1>
+<dl>
+  <dt>Private</dt>
+  <dd> <%= @the_user.private%> </dd>
+
+  <dt>Followers</dt>
+  <dd><%= @follower_count %> </dd>
+
+  <dt>Following</dt>
+  <dd><%= @following_count %> </dd>
+</dl>
+
+<ul>
+  <li><a href="/users/<%=@the_user.username%>">Profile</a></li>
+  <li><a href="/users/<%=@the_user.username%>/liked_photos">Liked photos</a></li>
+  <li><a href="/users/<%=@the_user.username%>/feed">Feed</a></li>
+  <li><a href="/users/<%=@the_user.username%>/discover">Discover</a></li>
+</ul>
+
+<h2>Liked photos (<%= @liked_photos.length%>) </h2>
+
+<div>
+  <div>
+    <table border="1">
+      <tr>
+        <th>
+          Image
+        </th>
+
+        <th>
+          Owner
+        </th>
+
+        <th>
+          Caption
+        </th>
+
+        <th>
+          Posted
+        </th>
+
+        <th>
+          Likes
+        </th>
+
+        <th>
+        </th>
+      </tr>
+
+    <% @liked_photos.each do |a_photo| %>
+      <tr>
+        <td>
+          <img src="<%= a_photo.image %>" alt=""> 
+        </td>
+
+        <td>
+          <%= @the_user.username %>
+        </td>
+
+        <td>
+          <%= a_photo.caption %>
+        </td>        
+        
+        <td>
+          <%= a_photo.created_at %>
+        </td>        
+        
+        <td>
+          <%= a_photo.likes_count %>
+        </td>
+
+        <td>
+          <a href="/photos/<%= a_photo.id %>">
+            Show details
+          </a>
+        </td>
+      </tr>
+      <% end %>
+    </table>
+  </div>
+</div>

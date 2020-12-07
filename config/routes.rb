@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+
+  get "/", to: "user_authentication#index"
+
   # Routes for the Follow request resource:
 
   # CREATE
@@ -17,23 +20,6 @@ Rails.application.routes.draw do
   get("/delete_follow_request/:path_id", { :controller => "follow_requests", :action => "destroy" })
 
   #------------------------------
-
-  # Routes for the User account:
-
-  # SIGN UP FORM
-  get("/user_sign_up", { :controller => "user_authentication", :action => "sign_up_form" })        
-  # CREATE RECORD
-  post("/insert_user", { :controller => "user_authentication", :action => "create"  })
-      
-  # EDIT PROFILE FORM        
-  get("/edit_user_profile", { :controller => "user_authentication", :action => "edit_profile_form" })       
-  # UPDATE RECORD
-  post("/modify_user", { :controller => "user_authentication", :action => "update" })
-  
-  # DELETE RECORD
-  get("/cancel_user_account", { :controller => "user_authentication", :action => "destroy" })
-
-  # ------------------------------
 
   # SIGN IN FORM
   get("/user_sign_in", { :controller => "user_authentication", :action => "sign_in_form" })
@@ -101,6 +87,31 @@ Rails.application.routes.draw do
   get("/delete_photo/:path_id", { :controller => "photos", :action => "destroy" })
 
   #------------------------------
+
+  # Routes for the User account:
+
+  # READ
+  get "/users", to: "user_authentication#index"
+  get "/users/:path_username", to: "user_authentication#show"
+
+  get "/users/:path_username/liked_photos", to: "user_authentication#liked"
+  get "/users/:path_username/feed", to: "user_authentication#show"
+  get "/users/:path_username/Discover", to: "user_authentication#show"
+
+  # SIGN UP FORM
+  get("/user_sign_up", { :controller => "user_authentication", :action => "sign_up_form" })        
+  # CREATE RECORD
+  post("/insert_user", { :controller => "user_authentication", :action => "create"  })
+      
+  # EDIT PROFILE FORM        
+  get("/edit_user_profile", { :controller => "user_authentication", :action => "edit_profile_form" })       
+  # UPDATE RECORD
+  post("/modify_user", { :controller => "user_authentication", :action => "update" })
+  
+  # DELETE RECORD
+  get("/cancel_user_account", { :controller => "user_authentication", :action => "destroy" })
+
+  # ------------------------------
 
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end

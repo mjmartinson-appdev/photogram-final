@@ -2,6 +2,78 @@ class UserAuthenticationController < ApplicationController
   # Uncomment this if you want to force users to sign in before any other actions
   # skip_before_action(:force_user_sign_in, { :only => [:sign_up_form, :create, :sign_in_form, :create_cookie] })
 
+  def index
+    matching_users = User.all
+
+    @list_of_users = matching_users.order({ :created_at => :desc })
+
+    render({ :template => "users/index.html.erb" })
+  end
+
+  def show
+    the_username = params.fetch("path_username")
+
+    matching_users = User.where({ :username => the_username })
+
+    @the_user = matching_users.at(0)
+    followrequests = FollowRequest.where( :recipient_id => @the_user.id, :status => "accepted")
+    @follower_count = followrequests.length
+    followrequests = FollowRequest.where( :sender_id => @the_user.id, :status => "accepted")
+    @following_count = followrequests.length
+    @user_photos = Photo.where( :owner_id => @the_user.id)
+
+    render({ :template => "users/show.html.erb" })
+  end
+
+  def liked
+    the_username = params.fetch("path_username")
+
+    matching_users = User.where({ :username => the_username })
+
+    @the_user = matching_users.at(0)
+    followrequests = FollowRequest.where( :recipient_id => @the_user.id, :status => "accepted")
+    @follower_count = followrequests.length
+    followrequests = FollowRequest.where( :sender_id => @the_user.id, :status => "accepted")
+    @following_count = followrequests.length
+    @liked_photos = []
+    likes = Like.where( :fan_id => @the_user.id)
+    likes.each do |like|
+      @liked_photos += Photo.where( :id => like.photo_id)
+    end
+
+    render({ :template => "users/liked.html.erb" })
+  end
+
+  def feed
+    the_username = params.fetch("path_username")
+
+    matching_users = User.where({ :username => the_username })
+
+    @the_user = matching_users.at(0)
+    followrequests = FollowRequest.where( :recipient_id => @the_user.id, :status => "accepted")
+    @follower_count = followrequests.length
+    followrequests = FollowRequest.where( :sender_id => @the_user.id, :status => "accepted")
+    @following_count = followrequests.length
+    @user_photos = Photo.where( :owner_id => @the_user.id)
+
+    render({ :template => "users/feed.html.erb" })
+  end
+
+  def discover
+    the_username = params.fetch("path_username")
+
+    matching_users = User.where({ :username => the_username })
+
+    @the_user = matching_users.at(0)
+    followrequests = FollowRequest.where( :recipient_id => @the_user.id, :status => "accepted")
+    @follower_count = followrequests.length
+    followrequests = FollowRequest.where( :sender_id => @the_user.id, :status => "accepted")
+    @following_count = followrequests.length
+    @user_photos = Photo.where( :owner_id => @the_user.id)
+
+    render({ :template => "users/discover.html.erb" })
+  end
+
   def sign_in_form
     render({ :template => "user_authentication/sign_in.html.erb" })
   end
@@ -19,7 +91,7 @@ class UserAuthenticationController < ApplicationController
       else
         session[:user_id] = user.id
       
-        redirect_to("/", { :notice => "Signed in successfully." })
+        redirect_to("/users/"+user.username, { :notice => "Signed in successfully." })
       end
     else
       redirect_to("/user_sign_in", { :alert => "No user with that email address." })
@@ -41,8 +113,6 @@ class UserAuthenticationController < ApplicationController
     @user.email = params.fetch("query_email")
     @user.password = params.fetch("query_password")
     @user.password_confirmation = params.fetch("query_password_confirmation")
-    @user.comments_count = params.fetch("query_comments_count")
-    @user.likes_count = params.fetch("query_likes_count")
     @user.private = params.fetch("query_private", false)
     @user.username = params.fetch("query_username")
 
@@ -51,9 +121,9 @@ class UserAuthenticationController < ApplicationController
     if save_status == true
       session[:user_id] = @user.id
    
-      redirect_to("/", { :notice => "User account created successfully."})
+      redirect_to("/users/"+@user.username, { :notice => "User account created successfully."})
     else
-      redirect_to("/user_sign_up", { :alert => @user.errors.full_messages.to_sentence })
+      redirect_to("/", { :alert => @user.errors.full_messages.to_sentence })
     end
   end
     
@@ -74,7 +144,7 @@ class UserAuthenticationController < ApplicationController
     if @user.valid?
       @user.save
 
-      redirect_to("/", { :notice => "User account updated successfully."})
+      redirect_to("/users/"+@user.username, { :notice => "User account updated successfully."})
     else
       render({ :template => "user_authentication/edit_profile_with_errors.html.erb" , :alert => @user.errors.full_messages.to_sentence })
     end
