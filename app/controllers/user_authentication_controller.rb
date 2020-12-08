@@ -13,6 +13,11 @@ class UserAuthenticationController < ApplicationController
   def show
     the_username = params.fetch("path_username")
 
+    if !@current_user
+      redirect_to("/user_sign_in", { :alert => "You have to sign in first"})
+      return
+    end
+
     matching_users = User.where({ :username => the_username })
 
     @the_user = matching_users.at(0)
@@ -20,6 +25,7 @@ class UserAuthenticationController < ApplicationController
     @follower_count = followrequests.length
     followrequests = FollowRequest.where( :sender_id => @the_user.id, :status => "accepted")
     @following_count = followrequests.length
+    @pending = FollowRequest.where( :recipient_id => @the_user.id, :status => "pending")
     @user_photos = Photo.where( :owner_id => @the_user.id)
 
     render({ :template => "users/show.html.erb" })
@@ -54,7 +60,16 @@ class UserAuthenticationController < ApplicationController
     @follower_count = followrequests.length
     followrequests = FollowRequest.where( :sender_id => @the_user.id, :status => "accepted")
     @following_count = followrequests.length
-    @user_photos = Photo.where( :owner_id => @the_user.id)
+
+    following = []
+    followrequests.each do |fr|
+      following += User.where( :id => fr.recipient_id)
+    end
+
+    @following_photos = [] 
+    following.each do |user|
+      @following_photos += Photo.where( :owner_id => user.id)
+    end
 
     render({ :template => "users/feed.html.erb" })
   end
@@ -65,11 +80,23 @@ class UserAuthenticationController < ApplicationController
     matching_users = User.where({ :username => the_username })
 
     @the_user = matching_users.at(0)
-    followrequests = FollowRequest.where( :recipient_id => @the_user.id, :status => "accepted")
-    @follower_count = followrequests.length
+    followerrequests = FollowRequest.where( :recipient_id => @the_user.id, :status => "accepted")
+    @follower_count = followerrequests.length
     followrequests = FollowRequest.where( :sender_id => @the_user.id, :status => "accepted")
     @following_count = followrequests.length
-    @user_photos = Photo.where( :owner_id => @the_user.id)
+
+    following = []
+    followrequests.each do |fr|
+      following += User.where( :id => fr.recipient_id)
+    end
+
+    @liked_photos = []
+    following.each do |user|
+      likes = Like.where( :fan_id => user.id)
+      likes.each do |like|
+        @liked_photos += Photo.where( :id => like.photo_id)
+      end
+    end
 
     render({ :template => "users/discover.html.erb" })
   end
@@ -91,7 +118,7 @@ class UserAuthenticationController < ApplicationController
       else
         session[:user_id] = user.id
       
-        redirect_to("/users/"+user.username, { :notice => "Signed in successfully." })
+        redirect_to("/", { :notice => "Signed in successfully." })
       end
     else
       redirect_to("/user_sign_in", { :alert => "No user with that email address." })
@@ -121,7 +148,7 @@ class UserAuthenticationController < ApplicationController
     if save_status == true
       session[:user_id] = @user.id
    
-      redirect_to("/users/"+@user.username, { :notice => "User account created successfully."})
+      redirect_to("/", { :notice => "User account created successfully."})
     else
       redirect_to("/", { :alert => @user.errors.full_messages.to_sentence })
     end
@@ -133,13 +160,11 @@ class UserAuthenticationController < ApplicationController
 
   def update
     @user = @current_user
-    @user.email = params.fetch("query_email")
-    @user.password = params.fetch("query_password")
-    @user.password_confirmation = params.fetch("query_password_confirmation")
-    @user.comments_count = params.fetch("query_comments_count")
-    @user.likes_count = params.fetch("query_likes_count")
+    @user.email = params.fetch("query_email", @user.email)
+    @user.password = params.fetch("query_password", @user.password)
+    @user.password_confirmation = params.fetch("query_password_confirmation", @user.password_confirmation)
     @user.private = params.fetch("query_private", false)
-    @user.username = params.fetch("query_username")
+    @user.username = params.fetch("query_username", @user.username)
     
     if @user.valid?
       @user.save

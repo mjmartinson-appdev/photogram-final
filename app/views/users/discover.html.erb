@@ -19,7 +19,7 @@
   <li><a href="/users/<%=@the_user.username%>/discover">Discover</a></li>
 </ul>
 
-<h2>Liked photos (<%= @liked_photos.length%>) </h2>
+<h2>Discover (<%= @liked_photos.length%>) </h2>
 
 <div>
   <div>
@@ -64,7 +64,7 @@
         </td>        
         
         <td>
-          <%= a_photo.created_at %>
+          <%= time_ago_in_words(a_photo.created_at) %> ago
         </td>        
         
         <td>

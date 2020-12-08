@@ -10,9 +10,20 @@ class PhotosController < ApplicationController
   def show
     the_id = params.fetch("path_id")
 
+    if !@current_user
+      redirect_to("/user_sign_in", { :alert => "You have to sign in first"})
+      return
+    end
+
     matching_photos = Photo.where({ :id => the_id })
 
     @the_photo = matching_photos.at(0)
+    likes = Like.where( :photo_id => @the_photo.id)
+    @fans = []
+    likes.each do |like|
+      @fans += User.where( :id => like.fan_id)
+    end
+    @comments = Comment.where( :photo_id => @the_photo.id)
 
     render({ :template => "photos/show.html.erb" })
   end
@@ -22,8 +33,6 @@ class PhotosController < ApplicationController
     the_photo.image = params.fetch("query_image")
     the_photo.caption = params.fetch("query_caption")
     the_photo.owner_id = params.fetch("query_owner_id")
-    the_photo.comments_count = params.fetch("query_comments_count")
-    the_photo.likes_count = params.fetch("query_likes_count")
 
     if the_photo.valid?
       the_photo.save

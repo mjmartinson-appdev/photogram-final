@@ -95,8 +95,8 @@ Rails.application.routes.draw do
   get "/users/:path_username", to: "user_authentication#show"
 
   get "/users/:path_username/liked_photos", to: "user_authentication#liked"
-  get "/users/:path_username/feed", to: "user_authentication#show"
-  get "/users/:path_username/Discover", to: "user_authentication#show"
+  get "/users/:path_username/feed", to: "user_authentication#feed"
+  get "/users/:path_username/discover", to: "user_authentication#discover"
 
   # SIGN UP FORM
   get("/user_sign_up", { :controller => "user_authentication", :action => "sign_up_form" })        

@@ -50,7 +50,7 @@
   <li><a href="/users/<%=@the_user.username%>/discover">Discover</a></li>
 </ul>
 
-<h2>Own photos (<%= Photo.where(:owner_id => @the_user.id).length%>) </h2>
+<h2>Feed (<%= @following_photos.length%>) </h2>
 
 <div>
   <div>
@@ -80,7 +80,7 @@
         </th>
       </tr>
 
-    <% @user_photos.each do |a_photo| %>
+    <% @following_photos.each do |a_photo| %>
       <tr>
         <td>
           <img src="<%= a_photo.image %>" alt=""> 
@@ -95,7 +95,7 @@
         </td>        
         
         <td>
-          <%= a_photo.created_at %>
+          <%= time_ago_in_words(a_photo.created_at) %> ago
         </td>        
         
         <td>
