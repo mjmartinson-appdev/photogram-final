@@ -35,7 +35,8 @@
         Comments count
       </dt>
       <dd>
-        <%= @the_photo.comments_count %>
+        <%# <%= @the_photo.comments_count %> %>
+        <%= Comment.where( :photo_id => @the_photo.id).length %>
       </dd>
       <dt>
         Likes count

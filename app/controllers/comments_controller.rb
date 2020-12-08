@@ -23,6 +23,10 @@ class CommentsController < ApplicationController
     the_comment.body = params.fetch("query_body")
     the_comment.photo_id = params.fetch("query_photo_id")
 
+    the_photo = Photo.where( :id => the_comment.photo_id)[0]
+    the_photo.comments_count = the_photo.comments_count + 1
+    the_photo.save
+
     if the_comment.valid?
       the_comment.save
       redirect_to("/", { :notice => "Comment created successfully." })
@@ -51,7 +55,12 @@ class CommentsController < ApplicationController
     the_id = params.fetch("path_id")
     the_comment = Comment.where({ :id => the_id }).at(0)
 
+    the_photo = Photo.where( :id => the_comment.photo_id)[0]
+    the_photo.comments_count = the_photo.comments_count - 1
+    the_photo.save
+
     the_comment.destroy
+
 
     redirect_to("/", { :notice => "Comment deleted successfully."} )
   end

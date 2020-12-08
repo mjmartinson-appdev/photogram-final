@@ -22,6 +22,10 @@ class LikesController < ApplicationController
     the_like.fan_id = params.fetch("query_fan_id")
     the_like.photo_id = params.fetch("query_photo_id")
 
+    the_photo = Photo.where( :id => the_like.photo_id)[0]
+    the_photo.likes_count = the_photo.likes_count + 1
+    the_photo.save
+
     if the_like.valid?
       the_like.save
       redirect_to("/", { :notice => "Like created successfully." })
@@ -48,6 +52,10 @@ class LikesController < ApplicationController
   def destroy
     the_id = params.fetch("path_id")
     the_like = Like.where({ :id => the_id }).at(0)
+
+    the_photo = Photo.where( :id => the_like.photo_id)[0]
+    the_photo.likes_count = the_photo.likes_count - 1
+    the_photo.save
 
     the_like.destroy
 
